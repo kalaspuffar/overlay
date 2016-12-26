@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Overlay</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+      html, body {
+        font-family: Roboto;
+        height: 99vh;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin: 0;
+        padding: 0;
+      }
+      .rightcol {
+        height: 99vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
+        padding: 0.2rem;
+      }
+
+      div {
+        color: #ede7f6;
+      }
+
+      span {
+        color: #9575cd;
+      }
+
+      .heightspan {
+        flex: 12;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rightcol">
+      <div>Followers goal: <span id="followers"></span><span>/10</span></div>
+      <div>   Viewer goal: <span id="viewers"></span><span>/10</span></div>
+      <div class="heightspan"></div>
+      <div>FPS: <span id="fps"></span></div>
+      <div>Time: <span id="time"></span></div>
+    </div>
+
+    <script>
+      setInterval(function() {
+        var date = new Date()
+        document.getElementById('time').innerHTML = 
+        	date.toLocaleDateString('sv-SE') + ' ' + 
+        	date.toLocaleTimeString('sv-SE', { hour12: false }).substring(0, 5);
+
+        fetch("https://api.twitch.tv/kraken/streams/weirdnamed?client_id=<client_id>").then(function(response) {
+          var contentType = response.headers.get("content-type");
+          if(contentType && contentType.indexOf("application/json") !== -1) {
+            return response.json().then(function(json) {
+              if(json.stream) {
+                document.getElementById('followers').innerHTML = json.stream.channel.followers;
+                document.getElementById('viewers').innerHTML = json.stream.viewers;
+                document.getElementById('fps').innerHTML = Math.round(json.stream.average_fps);
+              } else {
+                document.getElementById('followers').innerHTML = -2;
+                document.getElementById('viewers').innerHTML = -2;
+                document.getElementById('fps').innerHTML = -2;
+              }
+            });
+          } else {
+            document.getElementById('followers').innerHTML = -1;
+            document.getElementById('viewers').innerHTML = -1;
+            document.getElementById('fps').innerHTML = -1;
+          }
+        });
+      }, 5000);
+    </script>
+  </body>
+</html>
